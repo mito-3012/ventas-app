@@ -1,5 +1,6 @@
 package com.example.ventasapp.model
 
+import com.example.ventasapp.model.data.remote.convenios.ConvenioDto
 
 /**
  * Estado del formulario de venta. Los campos de texto se guardan como String porque es lo que
@@ -31,9 +32,15 @@ data class VentaFormUiState(
     val cargando: Boolean = false,
     val procesandoImagen: Boolean = false,
     val guardando: Boolean = false,
-    /** true si la venta pedida no existe o pertenece a otro vendedor. */
+    /** True si la venta pedida no existe o pertenece a otro vendedor. */
     val noAutorizado: Boolean = false,
-    val errores: VentaFormErrores = VentaFormErrores()
+    val errores: VentaFormErrores = VentaFormErrores(),
+
+    // Campos para mostrar los convenios recibidos desde la API y controlar el estado de carga
+    val convenios: List<ConvenioDto> = emptyList(),
+    val convenioSeleccionado: ConvenioDto? = null,
+    val cargandoConvenios: Boolean = false,
+    val errorConvenios: String? = null
 ) {
     val esEdicion: Boolean get() = ventaId != 0L
 }

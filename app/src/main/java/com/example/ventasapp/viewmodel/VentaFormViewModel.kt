@@ -27,6 +27,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+
+import com.example.ventasapp.model.data.remote.convenios.ConvenioDto
+import com.example.ventasapp.model.data.remote.convenios.ConveniosRepository
+
+
+
 /**
  * ViewModel del formulario de venta (crear, editar, corregir).
  *
@@ -336,5 +342,50 @@ class VentaFormViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun emitir(texto: String, esError: Boolean) {
         _eventos.trySend(EventoUi(texto, esError))
+    }
+
+    private val conveniosRepository = ConveniosRepository()
+
+    fun cargarConvenios() {
+        viewModelScope.launch {
+            _estado.update {
+                it.copy(
+                    cargandoConvenios = true,
+                    errorConvenios = null
+                )
+            }
+
+            try {
+                val convenios = withContext(Dispatchers.IO) {
+                    conveniosRepository.listar()
+                }
+
+                _estado.update {
+                    it.copy(
+                        convenios = convenios,
+                        cargandoConvenios = false,
+                        errorConvenios = null
+                    )
+                }
+            } catch (e: Exception) {
+                _estado.update {
+                    it.copy(
+                        cargandoConvenios = false,
+                        errorConvenios =
+                            "No se pudo cargar el catálogo de convenios."
+                    )
+                }
+            }
+        }
+    }
+
+    fun seleccionarConvenio(convenio: ConvenioDto) {
+        _estado.update {
+            it.copy(
+                convenioSeleccionado = convenio,
+                tipoConvenio = TipoConvenio.desde(convenio.tipo),
+                prestador = convenio.prestadores.firstOrNull().orEmpty()
+            )
+        }
     }
 }

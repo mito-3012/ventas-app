@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.Test
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -6,9 +8,8 @@ plugins {
 
 android {
     namespace = "com.example.ventasapp"
-    compileSdk {
-        version = release(37)
-    }
+
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.example.ventasapp"
@@ -17,27 +18,29 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner =
+            "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = false
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     buildFeatures {
         compose = true
     }
 }
 
 dependencies {
-    // ---- Compose base (la versión de cada librería la fija el BOM) ----
+
+    // JETPACK COMPOSE
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -46,62 +49,59 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
+
+    // LIFECYCLE Y VIEWMODEL
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-
-
-///para pruebas unoitarias testing
-
-    // Kotest: pruebas unitarias para Kotlin
-    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
-    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
-
-// JUnit 5
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-// MockK: simulación de dependencias
-    testImplementation("io.mockk:mockk:1.13.10")
-
-// Pruebas de corrutinas
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-
-// Pruebas de interfaz Compose
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
-
-
-
-    //Esto configura Gradle para ejecutar las pruebas unitarias mediante JUnit 5.
-
-    tasks.withType<Test>().configureEach {
-        useJUnitPlatform()
-    }
-
-
-
-
-    // ---- Integración con API REST ----
+    // API REST - RETROFIT
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter.gson)
+
+    // HTTP - OKHTTP
     implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
+
+    // CORRUTINAS
     implementation(libs.kotlinx.coroutines.android)
 
-    // ---- Navegación entre pantallas ----
+    // NAVEGACIÓN
     implementation(libs.androidx.navigation.compose)
 
-    // ---- Persistencia local con Room (ksp genera el código del DAO y la base) ----
+    // ROOM - BASE DE DATOS LOCAL
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-    // ---- Pruebas ----
+    // PRUEBAS UNITARIAS - JUNIT 5
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.10.0")
+
+    // JUNIT 4
     testImplementation(libs.junit)
+
+    // KOTEST
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
+
+    // MOCKK
+    testImplementation("io.mockk:mockk:1.13.10")
+
+    // CORRUTINAS PARA PRUEBAS
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+
+    // PRUEBAS DE INTERFAZ
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+// CONFIGURACIÓN DE JUNIT 5
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }

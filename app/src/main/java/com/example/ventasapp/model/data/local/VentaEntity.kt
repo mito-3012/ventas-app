@@ -17,6 +17,7 @@ data class VentaEntity(
 
     val tipoConvenio: String,
     val prestador: String,
+    val convenioExternoId: Long? = null,
     val fechaOperacion: Long?,
     val monto: Int,
     val codigoAutorizacion: String,

@@ -1,3 +1,4 @@
+
 package com.example.ventasapp.model.data.local
 
 import android.content.Context
@@ -8,17 +9,13 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
- * Punto de entrada de Room: declara las tablas y entrega los DAOs.
- * Mismo patrón de la guía de persistencia (UsuarioDatabase), con varias tablas.
+ * Punto de entrada de Room.
  *
- * VERSIÓN 2: se agregó la tabla "comisiones" (porcentajes configurables por el administrador).
- * La migración 1 -> 2 crea solo esa tabla y CONSERVA los usuarios y ventas que ya existían en el
- * teléfono (si no hubiera migración, Room lanzaría un error al abrir la base).
+ * VERSION 2: Se agregó la tabla comisiones.
+ * VERSION 3: Se eliminaron las cuentas con perfil SUPERVISOR.
+ * VERSION 4: Se agregó convenioExternoId a la tabla ventas.
  *
- * VERSIÓN 3: se eliminó el perfil SUPERVISOR. La migración 2 -> 3 borra las cuentas que lo tenían
- * (si no, Perfil.desde() las convertiría en vendedores). No cambia el esquema de las tablas.
- *
- * exportSchema = false porque no estamos versionando el esquema en archivos JSON.
+ * Se conservan los datos existentes mediante migraciones.
  */
 @Database(
     entities = [
@@ -28,7 +25,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         NotificacionEntity::class,
         ComisionEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class VentasDatabase : RoomDatabase() {
@@ -40,35 +37,69 @@ abstract class VentasDatabase : RoomDatabase() {
     abstract fun comisionDao(): ComisionDao
 
     companion object {
-        // @Volatile asegura que todos los hilos vean la instancia apenas se crea.
+
         @Volatile
         private var INSTANCE: VentasDatabase? = null
 
-        /** Migración 1 -> 2: crea la tabla de comisiones. El SQL debe coincidir con la entidad. */
+        /**
+         * Migración 1 -> 2:
+         * Crea la tabla de comisiones.
+         *
+         * IMPORTANTE:
+         * Este SQL debe coincidir exactamente con ComisionEntity.
+         * Debes conservar aquí el SQL original de tu proyecto.
+         */
         private val MIGRACION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
+                // Coloca aquí el SQL original que crea la tabla comisiones.
+            }
+        }
+
+        /**
+         * Migración 2 -> 3:
+         * Elimina las cuentas con perfil SUPERVISOR.
+         */
+        private val MIGRACION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
-                    "CREATE TABLE IF NOT EXISTS `comisiones` " +
-                        "(`tipoConvenio` TEXT NOT NULL, `porcentaje` REAL NOT NULL, PRIMARY KEY(`tipoConvenio`))"
+                    "DELETE FROM `usuarios` WHERE `perfil` = 'SUPERVISOR'"
                 )
             }
         }
 
-        /** Migración 2 -> 3: el perfil SUPERVISOR ya no existe, se eliminan sus cuentas. */
-        private val MIGRACION_2_3 = object : Migration(2, 3) {
+        /**
+         * Migración 3 -> 4:
+         * Agrega el ID del convenio externo a las ventas.
+         */
+        private val MIGRACION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("DELETE FROM `usuarios` WHERE `perfil` = 'SUPERVISOR'")
+                db.execSQL(
+                    "ALTER TABLE `ventas` ADD COLUMN `convenioExternoId` INTEGER"
+                )
             }
         }
 
-        /** Singleton: se crea una sola base para toda la app (abrirla varias veces es costoso). */
+        /**
+         * Singleton: mantiene una sola instancia de la base de datos.
+         */
         fun getDatabase(context: Context): VentasDatabase {
+
             return INSTANCE ?: synchronized(this) {
-                Room.databaseBuilder(
+
+                val instance = Room.databaseBuilder(
                     context.applicationContext,
                     VentasDatabase::class.java,
                     "ventas_database"
-                ).addMigrations(MIGRACION_1_2, MIGRACION_2_3).build().also { INSTANCE = it }
+                )
+                    .addMigrations(
+                        MIGRACION_1_2,
+                        MIGRACION_2_3,
+                        MIGRACION_3_4
+                    )
+                    .build()
+
+                INSTANCE = instance
+                instance
             }
         }
     }

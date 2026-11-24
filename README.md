@@ -16,7 +16,7 @@ encargado la revise, valide, observe o rechace, dejando todo trazado.
 | Nombre y apellido | Rol en el proyecto |
 |-------------------|--------------------|
 | Daniel Pinto      | Developer          |
-| Jaime erez        | Developer          |
+| Jaime Perez       | Developer          |
 
 Equipo N°: (completar) - Nombre de la aplicación: **Gestión de ventas**
 
@@ -204,5 +204,6 @@ de estado). Ejecutar con clic derecho sobre el archivo >
 La aplicación integra Retrofit y JSONPlaceholder (`/posts`) mediante MVVM. Desde el perfil Administrador se accede a la pestaña **API** para probar GET, POST, PUT, PATCH y DELETE. La derivación de ventas validadas también envía un resumen no identificable del cliente a la API de pruebas. Consulta [`docs/GUIA14_IMPLEMENTACION.md`](docs/GUIA14_IMPLEMENTACION.md) para la arquitectura, las pruebas manuales y los pasos pendientes de GitHub/Trello.
 #   V e n t a s a p p 1 
  
- #   v e n t a s - a p p  
+ #   v e n t a s - a p p 
+ 
  

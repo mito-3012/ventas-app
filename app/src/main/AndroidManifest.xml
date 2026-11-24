@@ -1,19 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permite consumir el servicio REST JSONPlaceholder mediante Retrofit. -->
+    <!-- Permite consumir servicios REST mediante Retrofit -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Recurso nativo 1: cámara. Se declara el permiso y se pide en tiempo de ejecución. -->
+    <!-- Permiso de cámara -->
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <!-- Galería propia de la app: lectura de imágenes (Android 13+ usa READ_MEDIA_IMAGES). -->
+    <!-- Permiso para acceder a imágenes en Android 13 o superior -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- Permiso para acceder a imágenes en Android 12 o inferior -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
-    <!-- required=false: la app también se puede instalar en equipos sin cámara (usa galería). -->
+    <!-- Permite instalar la aplicación en equipos sin cámara -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -21,6 +22,7 @@
     <application
         android:name=".VentasApplication"
         android:allowBackup="true"
+        android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -30,32 +32,37 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VentasApp">
 
+        <!-- Actividad principal -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.VentasApp"
             android:windowSoftInputMode="adjustResize">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
-        <!-- FileProvider: entrega a la app de cámara una URI segura (content://) donde guardar la foto.
-             Nunca se expone una ruta de archivo directa a otra aplicación. -->
+        <!-- FileProvider para compartir imágenes de forma segura -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
+
         </provider>
+
     </application>
 
-    <!-- Visibilidad de paquetes (Android 11+): permite resolver apps de cámara. -->
+    <!-- Visibilidad de aplicaciones de cámara -->
     <queries>
         <intent>
             <action android:name="android.media.action.IMAGE_CAPTURE" />
