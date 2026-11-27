@@ -11,7 +11,7 @@ object ConveniosApi {
     // Dirección base de la API REST.
     // 10.0.2.2 permite acceder al localhost del computador
     // desde el emulador Android.
-    private const val BASE_URL = "http://10.0.2.2:3000/"
+    private const val BASE_URL = "http://10.0.2.2:8080/"
 
     // Registro de solicitudes y respuestas HTTP.
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
